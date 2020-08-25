@@ -2,10 +2,9 @@
 
 This document defines the grammar used by the lexer and parser in BNF.
 
+First off, the lexical definitions:
 ```ebnf
-command     = binary_name [{ whitespaces argument }];
-binary_name = [ "." [ "." ] "/" ] [{ filename "/" }] filename;
-filename    = { letter | digit | "-" | "_" | "." };
+argument    = { letter | digit | "-" | "_" | "." | "/"}
 whitespaces = { whitespace };
 
 // Base definitons
@@ -18,4 +17,9 @@ letter      = "A" | "B" | "C" | "D" | "E" | "F" | "G"
             | "q" | "r" | "s" | "t" | "u" | "v" | "w"
             | "x" | "y" | "z" ;
 digit       = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+whitespace  = ? white_space characters ? ;
+```
+
+```enf
+command     = { argument };
 ```
