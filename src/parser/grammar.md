@@ -2,7 +2,7 @@
 
 This document defines the grammar used by the lexer and parser in BNF.
 
-```bnf
+```ebnf
 command     = binary_name [{ whitespaces argument }];
 binary_name = [ "." [ "." ] "/" ] [{ filename "/" }] filename;
 filename    = { letter | digit | "-" | "_" | "." };
