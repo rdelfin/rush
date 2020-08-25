@@ -5,6 +5,8 @@ use nix::{
 use std::env;
 use std::ffi::{CStr, CString};
 
+mod parser;
+
 fn main() {
     let args: Vec<String> = env::args().skip(1).collect();
 
