@@ -1,3 +1,3 @@
-pub enum Token {
+pub enum LexerToken {
     Text(String),
 }
