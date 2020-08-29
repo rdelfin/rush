@@ -1,35 +1,46 @@
-use nix::{
-    sys::wait::wait,
-    unistd::{execvp, fork, ForkResult},
-};
-use std::env;
-use std::ffi::{CStr, CString};
+use anyhow::Result;
+use std::io::{self, BufRead, Write};
+
+use crate::parser::{lexer_tokenize, LexerToken};
 
 mod parser;
 
-fn main() {
-    let args: Vec<String> = env::args().skip(1).collect();
+fn main() -> Result<()> {
+    loop {
+        print_prompt()?;
 
-    match fork() {
-        Ok(ForkResult::Parent { child }) => {
-            println!("From the parent, child has PID {}", child);
-            wait().unwrap();
-            println!("Child finished!")
-        }
-        Ok(ForkResult::Child) => {
-            let args_cstr: Vec<_> = args
-                .iter()
-                .skip(1)
-                .map(|a| CString::new(a.as_bytes()).unwrap())
-                .collect();
+        let mut next_line = read_line()?;
+        next_line.pop();
 
-            let args_cstring: Vec<&CStr> = args_cstr.iter().map(|c| c.as_c_str()).collect();
-            println!(
-                "Running execvp on program \"{}\" with args {:?}",
-                args[0], args_cstring,
-            );
-            execvp(&CString::new(args[0].as_bytes()).unwrap(), &args_cstring).unwrap();
+        let tokens = match lexer_tokenize(&next_line) {
+            Err(e) => {
+                eprintln!("There was an error parsing the line:\n\t{}", e);
+                continue;
+            }
+            Ok(s) => s,
+        };
+
+        println!("TOKENS:");
+        for token in tokens {
+            print!("\t");
+            match token {
+                LexerToken::Text(s) => {
+                    println!("TEXT: {}", s);
+                }
+            }
         }
-        Err(_) => println!("Fork failed."),
     }
+}
+
+fn print_prompt() -> Result<()> {
+    print!("$ ");
+    io::stdout().flush()?;
+    Ok(())
+}
+
+fn read_line() -> Result<String> {
+    let mut line = String::new();
+    let stdin = io::stdin();
+    stdin.lock().read_line(&mut line)?;
+    Ok(line)
 }
