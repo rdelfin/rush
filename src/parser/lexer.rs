@@ -11,7 +11,7 @@ pub enum LexingError {
     UnexpectedEnd(String),
 }
 
-pub fn lexer_tokenize(code: &str) -> Result<Vec<LexerToken>, LexingError> {
+pub fn lexer_tokenise(code: &str) -> Result<Vec<LexerToken>, LexingError> {
     let mut tokens = vec![];
     let mut char_iter = code.chars().peekable();
     loop {

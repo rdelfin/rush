@@ -10,7 +10,7 @@ pub enum ParserError {
 }
 
 pub fn parser_parse<'a, T: Iterator<Item = &'a LexerToken>>(
-    iter: &mut T,
+    iter: T,
 ) -> Result<Vec<ASTToken>, ParserError> {
     let mut res = vec![];
 

@@ -1,8 +1,6 @@
 use anyhow::Result;
 use std::io::{self, BufRead, Write};
 
-use crate::parser::{lexer_tokenize, parser_parse};
-
 mod parser;
 
 fn main() -> Result<()> {
@@ -11,15 +9,7 @@ fn main() -> Result<()> {
 
         let next_line = read_line()?;
 
-        let lexer_tokens = match lexer_tokenize(&next_line) {
-            Err(e) => {
-                eprintln!("There was an error parsing the line:\n\t{}", e);
-                continue;
-            }
-            Ok(s) => s,
-        };
-
-        let tokens = match parser_parse(&mut lexer_tokens.iter()) {
+        let tokens = match parser::parse(&next_line) {
             Err(e) => {
                 eprintln!("There was an error parsing the line:\n\t{}", e);
                 continue;
