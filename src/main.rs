@@ -9,8 +9,7 @@ fn main() -> Result<()> {
     loop {
         print_prompt()?;
 
-        let mut next_line = read_line()?;
-        next_line.pop();
+        let next_line = read_line()?;
 
         let tokens = match lexer_tokenize(&next_line) {
             Err(e) => {
@@ -26,6 +25,9 @@ fn main() -> Result<()> {
             match token {
                 LexerToken::Text(s) => {
                     println!("TEXT: {}", s);
+                }
+                LexerToken::NewLine => {
+                    println!("NEW LINE");
                 }
             }
         }

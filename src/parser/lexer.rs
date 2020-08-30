@@ -7,6 +7,8 @@ use crate::parser::tokens::LexerToken;
 pub enum LexingError {
     #[error("We encountered a \"{0}\", which does not match any valid lexer tokens")]
     InvalidCharError(char),
+    #[error("The text ended unexpectedly while parsing a {0}")]
+    UnexpectedEnd(String),
 }
 
 pub fn lexer_tokenize(code: &str) -> Result<Vec<LexerToken>, LexingError> {
@@ -17,6 +19,8 @@ pub fn lexer_tokenize(code: &str) -> Result<Vec<LexerToken>, LexingError> {
             Some(c) => {
                 let next_token = if is_letter(*c) || is_number(*c) || is_valid_symbol(*c) {
                     parse_text(&mut char_iter)
+                } else if is_new_line(*c) {
+                    parse_new_line(&mut char_iter)?
                 } else if c.is_whitespace() {
                     parse_whitespace(&mut char_iter);
                     continue;
@@ -39,6 +43,10 @@ fn is_letter(c: char) -> bool {
 
 fn is_number(c: char) -> bool {
     c >= '0' && c <= '9'
+}
+
+fn is_new_line(c: char) -> bool {
+    c == '\r' || c == '\n'
 }
 
 fn is_valid_symbol(c: char) -> bool {
@@ -76,4 +84,33 @@ fn parse_whitespace<T: Iterator<Item = char>>(iter: &mut Peekable<T>) {
             return;
         }
     }
+}
+
+fn parse_new_line<T: Iterator<Item = char>>(
+    iter: &mut Peekable<T>,
+) -> Result<LexerToken, LexingError> {
+    let c = iter.peek();
+
+    match c {
+        Some(&c) => {
+            if c == '\n' {
+                iter.next();
+            } else if c == '\r' {
+                if let Some(next_c) = iter.next() {
+                    if next_c != '\n' {
+                        return Err(LexingError::InvalidCharError(c));
+                    }
+                } else {
+                    return Err(LexingError::UnexpectedEnd("new line".to_string()));
+                }
+            } else {
+                return Err(LexingError::InvalidCharError(c));
+            }
+        }
+        None => {
+            return Err(LexingError::UnexpectedEnd("new line".to_string()));
+        }
+    }
+
+    return Ok(LexerToken::NewLine);
 }
