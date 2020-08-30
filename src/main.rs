@@ -1,6 +1,7 @@
 use anyhow::Result;
 use std::io::{self, BufRead, Write};
 
+mod executor;
 mod parser;
 
 fn main() -> Result<()> {
@@ -17,10 +18,7 @@ fn main() -> Result<()> {
             Ok(t) => t,
         };
 
-        println!("TOKENS:");
-        for token in tokens {
-            println!("\t{:?}", token);
-        }
+        executor::execute(tokens.iter())?;
     }
 }
 
